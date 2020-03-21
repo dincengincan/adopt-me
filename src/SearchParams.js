@@ -1,41 +1,59 @@
 import React, { useState, useEffect } from "react";
 import pet, { ANIMALS } from "@frontendmasters/pet";
-
 import useDropdown from "./useDropdown";
+import Results from "./Results";
 
 const SearchParams = () => {
-  const [location, setLocation] = useState("Seattle, WA");
-  const [breeds, setBreeds] = useState([]);
+  const [location, updateLocation] = useState("Seattle, WA");
+  const [breeds, updateBreeds] = useState([]);
+  const [pets, setPets] = useState([]);
   const [animal, AnimalDropdown] = useDropdown("Animal", "dog", ANIMALS);
-  const [breed, BreedDropdown, setBreed] = useDropdown("Breed", "", breeds);
+  const [breed, BreedDropdown, updateBreed] = useDropdown("Breed", "", breeds);
+
+  async function requestPets() {
+    const { animals } = await pet.animals({
+      location,
+      breed,
+      type: animal
+    });
+
+    console.log("animals", animals);
+
+    setPets(animals || []);
+  }
 
   useEffect(() => {
-    setBreeds([]);
-    setBreed("");
+    updateBreeds([]);
+    updateBreed("");
 
     pet.breeds(animal).then(({ breeds }) => {
       const breedStrings = breeds.map(({ name }) => name);
-      setBreeds(breedStrings);
+      updateBreeds(breedStrings);
     }, console.error);
-  }, [animal, setBreed, setBreeds]);
+  }, [animal]);
 
   return (
     <div className="search-params">
-      <form>
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          requestPets();
+        }}
+      >
         <label htmlFor="location">
-          location
+          Location
           <input
             id="location"
             value={location}
-            placeholder="location"
-            onChange={e => setLocation(e.target.value)}
+            placeholder="Location"
+            onChange={e => updateLocation(e.target.value)}
           />
-          <button>Submit</button>
         </label>
         <AnimalDropdown />
         <BreedDropdown />
         <button>Submit</button>
       </form>
+      <Results pets={pets} />
     </div>
   );
 };
