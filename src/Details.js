@@ -13,7 +13,6 @@ const Details = props => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    throw new Error("aha");
     pet.animal(props.id).then(({ animal }) => {
       setName(animal.name);
       setAnimal(animal.type);
