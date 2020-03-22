@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import pet from "@frontendmasters/pet";
 import Carousel from "./Carousel";
+import ErrorBoundary from "./ErrorBoundaries";
 
 const Details = props => {
   const [name, setName] = useState();
@@ -12,6 +13,7 @@ const Details = props => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    throw new Error("aha");
     pet.animal(props.id).then(({ animal }) => {
       setName(animal.name);
       setAnimal(animal.type);
@@ -40,4 +42,10 @@ const Details = props => {
   );
 };
 
-export default Details;
+export default function DetailsWithErrorBoundary(props) {
+  return (
+    <ErrorBoundary>
+      <Details {...props} />
+    </ErrorBoundary>
+  );
+}
